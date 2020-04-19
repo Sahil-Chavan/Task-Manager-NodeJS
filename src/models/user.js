@@ -18,6 +18,13 @@ const userSchema = new mongoose.Schema({
 
 })
 
+userSchema.methods.toJSON = function (){
+        dataObj = this.toObject()
+        delete dataObj.pass
+        delete dataObj.tokens
+        return dataObj
+}
+
 userSchema.methods.genToken = async function () {
     token = jwt.sign({_id: this._id.toString()},'nodejs')
     this.tokens = this.tokens.concat({token})
@@ -38,6 +45,7 @@ userSchema.statics.authentication = async ({email,pass}) =>{
     return user
 }
 
+
 userSchema.pre('save',async function(next){
     if(this.isModified('pass')){
         console.log(this.pass)
@@ -46,7 +54,7 @@ userSchema.pre('save',async function(next){
     }   
     next()
 })
-userSchema.pre('findOneAndUpdate',{ document: true, query: false },async function(next){
+userSchema.pre('updateOne',{ document: true, query: false },async function(next){
     // console.log("just before updating");
     const docup = await this.model.findOne(this.getQuery())
     // if(docup.isModified('pass')){

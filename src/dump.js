@@ -103,3 +103,15 @@ app.get('/task/:id',(req,res)=>{
         res.status(500).send()
     });
 })
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+router.post('/user/logoutAll',authorization, async (req,res)=>{
+    try {
+        req.user.tokens = []
+        await req.user.save()
+        res.send("Logged out of all tokens")
+    } catch (error) {
+        res.status(500).send("error")
+    }
+})
+
