@@ -17,7 +17,11 @@ const userSchema = new mongoose.Schema({
         token:{type:String,required:true}
     }]
 
+},{
+    timestamps:true
 })
+
+
 userSchema.virtual('tasks',{
     ref:'Task',
     localField:'_id',

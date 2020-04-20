@@ -32,15 +32,30 @@ router.get('/task',authorization,async(req,res)=>{
         if(!result){ res.status(404).send()}
         res.send(result)
     } catch (error) {
-        res.status(500).send()
+        res.status(500).send()  
     }
 })
 
 router.get('/task/populate',authorization,async(req,res)=>{
-    
     try {
+    //    if(req.query.status){
+    //        req.query.status = req.query.status === 'true'
+    //    }
+    // console.log(req.query)
+       await req.user.populate({
+            path:'tasks',
+            match:{
+                ...req.query.des&&{des:req.query.des},
+                ...req.query.status&&{status:req.query.status==='true'},
+                ...req.query.id&&{_id:req.query.id},
+            },
+            options:{
+                limit: parseInt(req.query.limit),
+                skip: parseInt(req.query.skip)
+            }
 
-        let data = await req.user.populate('tasks').execPopulate()
+        }).execPopulate()
+        console.log
         res.send(req.user.tasks)
     } catch (error) {
         res.status(500).send()
