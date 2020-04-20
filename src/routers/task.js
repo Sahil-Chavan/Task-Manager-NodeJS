@@ -21,10 +21,14 @@ router.post('/task',authorization, async(req,res)=>{
 
 ///////////////////////////Find Tasks Endpoints///////////////////////////
 
-router.get('/task',async(req,res)=>{
+router.get('/task',authorization,async(req,res)=>{
     
     try {
-        result = await Task.find(req.query) 
+        result = await Task.find({
+            ...req.query,
+            owner:req.user._id
+        }) 
+       
         if(!result){ res.status(404).send()}
         res.send(result)
     } catch (error) {
@@ -32,10 +36,22 @@ router.get('/task',async(req,res)=>{
     }
 })
 
-router.get('/task/:id',async(req,res)=>{
+router.get('/task/populate',authorization,async(req,res)=>{
+    
+    try {
+
+        let data = await req.user.populate('tasks').execPopulate()
+        res.send(req.user.tasks)
+    } catch (error) {
+        res.status(500).send()
+    }
+})
+
+router.get('/task/:id',authorization,async(req,res)=>{
     _id = req.params.id
     try {
-        result = await Task.findById(_id)
+        // result = await Task.findById(_id)
+        result = await Task.findOne({_id, owner:req.user._id})
         if(!result){ res.status(404).send()}
         res.send(result)
     } catch (error) {
@@ -44,32 +60,32 @@ router.get('/task/:id',async(req,res)=>{
 })
 ///////////////////////////Update Tasks Endpoints///////////////////////////
 
-router.patch('/task/:id',async (req,res)=>{
+router.patch('/task/:id',authorization,async (req,res)=>{
     ipkey = Object.keys(req.body)
     present_keys = ['des','status']
     is_valid = ipkey.every((x)=> present_keys.includes(x))
-
+    _id = req.params.id
     
     try {
-        result = await Task.findByIdAndUpdate(req.params.id,req.body,{new:true,runValidators:true})
+        result = await Task.findOneAndUpdate({ _id , owner:req.user._id },req.body,{new:true,runValidators:true})
         if(!result){res.status(404).send('Task not found')}
         if(!is_valid){ return res.status(400).send('keys not matching')}
         res.send(result)
     } catch (e) {
-        res.status(500).send(e)
+        res.status(500).send(e.message)
     }
 })
 
 ///////////////////////////Delete User Endpoints///////////////////////////
 
-router.delete('/task/:id',async(req,res)=>{
-
+router.delete('/task/:id',authorization,async(req,res)=>{
+    _id = req.params.id
     try {
-        task = await Task.findByIdAndDelete(req.params.id)
+        task = await Task.findOneAndDelete({ _id , owner:req.user._id })
         if(!task){ return res.status(404).send('task not found')}
         res.send(task)
     } catch (e) {
-        res.status(500).send(e) 
+        res.status(500).send(e.message) 
     }
 })
 
