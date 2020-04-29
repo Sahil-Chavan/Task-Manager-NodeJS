@@ -42,6 +42,9 @@ router.get('/task/populate',authorization,async(req,res)=>{
     //        req.query.status = req.query.status === 'true'
     //    }
     // console.log(req.query)
+    if(req.query.sortBy){
+        sortq = req.query.sortBy.split('_')
+    }
        await req.user.populate({
             path:'tasks',
             match:{
@@ -51,12 +54,14 @@ router.get('/task/populate',authorization,async(req,res)=>{
             },
             options:{
                 limit: parseInt(req.query.limit),
-                skip: parseInt(req.query.skip)
+                skip: parseInt(req.query.skip),
+                sort:{
+                    ...req.query.sortBy&&{[sortq[0]]: sortq[1]==='d'?-1:1}
+                }
             }
 
         }).execPopulate()
-        console.log
-        res.send(req.user.tasks)
+         res.send(req.user.tasks)
     } catch (error) {
         res.status(500).send()
     }
@@ -91,7 +96,7 @@ router.patch('/task/:id',authorization,async (req,res)=>{
     }
 })
 
-///////////////////////////Delete User Endpoints///////////////////////////
+///////////////////////////Delete Task Endpoints///////////////////////////
 
 router.delete('/task/:id',authorization,async(req,res)=>{
     _id = req.params.id
