@@ -15,7 +15,10 @@ const userSchema = new mongoose.Schema({
         },
     tokens:[{
         token:{type:String,required:true}
-    }]
+    }],
+    propic:{
+        type:Buffer
+    }
 
 },{
     timestamps:true
@@ -32,6 +35,7 @@ userSchema.methods.toJSON = function (){
         dataObj = this.toObject()
         delete dataObj.pass
         delete dataObj.tokens
+        delete dataObj.propic
         return dataObj
 }
 

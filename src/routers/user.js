@@ -1,6 +1,7 @@
 const express = require('express')
 const User = require('../models/user')
 const authorization = require('../middleware/authorization')
+const multer = require('multer')
 router = new express.Router()
 
 
@@ -106,6 +107,76 @@ router.post('/user/logoutAll',authorization, async (req,res)=>{
     }
 })
 
+/////////////////////////// Profile Picture Endpoints///////////////////////////
+const upload = multer({
+    ////// ===>>>we are not going to use 'dest:' here because we need to access the biffer data in the (req,res) function 
+    // dest:'user-data/profile-img',
+    limits: {
+        fileSize: 1000000
+    },
+    fileFilter(req,file,cb){
+////////////// USING REG EX /////////////
+            if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+                // cb(new Error('Upload jpg|jpeg|png'))
+                return cb(new Error('Wrong file format'))
+            }
+            cb(undefined,true)
+ ////////////// USING ENDSWITH()/////////////
+        // if (file.originalname.endsWith('.pdf')){
+        //     cb(undefined,true)
+        // }
+////////// USING SPLIT()/////////////
+        // fname = file.originalname.split('.')
+        // if(fname[1]==='pdf'){
+        //     cb(undefined,true)
+        // }
+    }
+})
+router.post('/user/profilePic',authorization,upload.single('upload'),async(req,res)=>{
+    try {
+        req.user.propic = req.file.buffer
+        await req.user.save()
+        res.send('success')    
+    } catch(e) {
+        // res.status(400).send(e.message)
+    }
+},(error,req,res,next)=>{
+    res.status(400).send({error:error.message})
+})
+
+router.delete('/user/profilePic',authorization, async (req,res)=>{
+ try {
+     if(req.user.propic){
+        req.user.propic = undefined
+        await req.user.save()
+        res.send("propic deleted")
+     }
+     else {
+         throw new Error('No existing propic')
+     }
+ } catch (e) {
+     res.status(400).send({error: error.message})
+ }
+})
+
+router.get('/user/profilePic/:id', async (req,res)=>{
+   id = req.params.id
+    user = await User.findById(id)
+        
+    try {
+        if(user.propic){
+            res.set('Content-Type','image/jpg')
+            res.send(user.propic)
+        }
+        else {
+            throw new Error('No existing propic')
+        }
+    } catch (e) {
+        res.status(400).send({error: e.message})
+    }
+})
+
+
 
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++ ALL THE REQUSETS WHICH SHOULD NOT BE PRESENT +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
@@ -164,6 +235,7 @@ router.get('/user/:id',authorization, async (req,res)=>{
          res.status(500).send()
      }
 })
+
 
 
 
