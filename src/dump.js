@@ -114,4 +114,4 @@ router.post('/user/logoutAll',authorization, async (req,res)=>{
         res.status(500).send("error")
     }
 })
-
+ 
