@@ -1,12 +1,16 @@
 {
-  "name": "Task-manager",
+  "name": "task-manager",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
     "dev": "env-cmd -f ./config/dev.env nodemon src/index.js",
-    "dbs": "\\Programming\\MongoDB\\mongodb\\bin\\mongod.exe --dbpath=\\Programming\\MongoDB\\mongodb-data"
+    "dbs": "\\Programming\\MongoDB\\mongodb\\bin\\mongod.exe --dbpath=\\Programming\\MongoDB\\mongodb-data",
+    "test": "env-cmd -f ./config/test.env jest --watch"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +26,8 @@
   },
   "devDependencies": {
     "env-cmd": "^10.1.0",
-    "nodemon": "^2.0.3"
+    "jest": "^25.5.3",
+    "nodemon": "^2.0.3",
+    "supertest": "^4.0.2"
   }
 }

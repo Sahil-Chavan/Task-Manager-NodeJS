@@ -10,8 +10,10 @@ Task.findByIdAndDelete('5e94a0331928b7abd8dd9d99') .then((result) => {
     console.log(res);
 }).catch((err) => {
 });
+async function def(){
 
-const asyncfn = async (_id,status) =>{
+}
+ asyncfn = async (_id,status) =>{
     deldoc = await Task.findByIdAndDelete(_id)
     count = await Task.countDocuments({ status })
     return { deldoc , count }
